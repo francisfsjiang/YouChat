@@ -25,7 +25,7 @@
                 <div class="inner">
                     <h3 class="masthead-brand">YouChat</h3>
                     <nav>
-                        <ul class="nav masthead-nav" role="tablist">
+                        <ul class="nav masthead-nav" role="tablist" id="Tabs">
                             <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
                             <li role="presentation"><a href="#chat" aria-controls="chat" role="tab" data-toggle="tab">Chat</a></li>
                         </ul>
@@ -45,6 +45,11 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="chat">
                     hello wtf
+                    <div class="input-group">
+                        <span class="input-group-addon" id="name">Anonymous</span>
+                        <input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1">
+                    </div>
+
                 </div>
             </div>
 
@@ -61,9 +66,26 @@
 
 </div>
 
+
+
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="static/js/jquery.min.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="static/js/bootstrap.min.js"></script>
+
+<script>
+    $("ul#Tabs [href$='#home']").on('shown.bs.tab', function (e) {
+        console.log("home");
+        window.onbeforeunload = null;
+    });
+    $("ul#Tabs [href$='#chat']").on('shown.bs.tab', function (e) {
+        console.log("chat");
+        window.onbeforeunload = check_leave;
+    });
+    function check_leave() {
+        return "Don't leave, please. QAQ";
+    }
+</script>
+
 </body>
 </html>
