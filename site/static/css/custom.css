@@ -1,0 +1,11 @@
+#chat-container {
+    position: relative;
+    height: 150px;
+    background-color: #000000;
+    /*border:2px solid;*/
+    border-radius: 10px;
+    border-color: #398439;
+    box-shadow: 3px 3px 2px #888888;
+    overflow:hidden;
+    margin-bottom: 20px;
+}

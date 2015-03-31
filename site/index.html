@@ -12,6 +12,10 @@
 
     <link rel="stylesheet" href="static/css/cover.css">
 
+    <link rel="stylesheet" href="static/css/custom.css">
+
+    <link rel="stylesheet" href="static/css/perfect-scrollbar.min.css">
+
 </head>
 <body>
 
@@ -44,7 +48,46 @@
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="chat">
-                    hello wtf
+                    <div id="chat-container">
+                        <div>
+                            <div>
+                                21232131312
+                            </div>
+                            <div>
+                                21232131312
+                            </div>
+                            <div>
+                                21232131312
+                            </div>
+                            <div>
+                                21232131312
+                            </div>
+                            <div>
+                                21232131312
+                            </div>
+                            <div>
+                                21232131312
+                            </div>
+                            <div>
+                                21232131312
+                            </div>
+                            <div>
+                                21232131312
+                            </div>
+                            <div>
+                                21232131312
+                            </div>
+                            <div>
+                                21232131312
+                            </div>
+                            <div>
+                                21232131312
+                            </div>
+
+                        </div>
+
+
+                    </div>
                     <div class="input-group">
                         <span class="input-group-addon" id="name">Anonymous</span>
                         <input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1">
@@ -73,18 +116,24 @@
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="static/js/bootstrap.min.js"></script>
 
+<script src="static/js/perfect-scrollbar.min.js"></script>
+
 <script>
     $("ul#Tabs [href$='#home']").on('shown.bs.tab', function (e) {
         console.log("home");
-        window.onbeforeunload = null;
+        //window.onbeforeunload = null;
     });
     $("ul#Tabs [href$='#chat']").on('shown.bs.tab', function (e) {
         console.log("chat");
-        window.onbeforeunload = check_leave;
+        //window.onbeforeunload = check_leave;
     });
     function check_leave() {
         return "Don't leave, please. QAQ";
     }
+    (function() {
+        //$('#chat-container').perfectScrollbar();
+        window.PerfectScrollbar.initialize(document.getElementById('chat-container'));
+    })();
 </script>
 
 </body>
