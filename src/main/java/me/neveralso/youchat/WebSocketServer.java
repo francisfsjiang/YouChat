@@ -1,4 +1,4 @@
-package me.neveralso.websocket;
+package me.neveralso.youchat;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
