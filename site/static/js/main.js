@@ -1,18 +1,16 @@
 window.youchat = {};
 
+youchat.keymap = {};
+youchat.keymap.enter = 13;
+
+youchat.dom = {};
+
 youchat.client = {};
 youchat.client.ws = null;
-youchat.client.host = "wx://127.0.0.1";
-youchat.client.port = "8025";
-youchat.client.path = "/websockets/game";
+youchat.client.url = "ws://127.0.0.1:8025/websockets/game";
 
 youchat.client.init = function () {
-    youchat.client.ws = new WebSocket(
-        youchat.client.host +
-        " " +
-        youchat.client.port +
-        youchat.client.path
-    );
+    youchat.client.ws = new WebSocket(youchat.client.url);
     youchat.client.ws.onopen = youchat.client.callback.onopen;
     youchat.client.ws.onmessage = youchat.client.callback.onmessage;
     youchat.client.ws.onclose = youchat.client.callback.onclose;
@@ -37,6 +35,21 @@ youchat.client.callback.onerror = function (e) {
     console.log("ws error");
 };
 
+youchat.keyup = function (e) {
+    var key_code = e.which;
+    switch (key_code) {
+        case youchat.keymap.enter :
+            var json = JSON.stringify({
+                "type": "msg",
+                "msg": youchat.dom.input_text.val()
+            });
+            console.log("send:" + json);
+            youchat.client.ws.send(json);
+            youchat.dom.input_text.value = "";
+            break;
+    }
+};
+
 youchat.init = function() {
     document.body.style.overflow = "hidden";
     //window.onbeforeunload = check_leave;
@@ -44,7 +57,9 @@ youchat.init = function() {
         return "Don't leave, please. QAQ";
     }
     window.PerfectScrollbar.initialize(document.getElementById('chat-container'));
-    //youchat.client.init();
+    youchat.dom.input_text = $("#input-text");
+    youchat.dom.input_text.keyup(youchat.keyup);
+    youchat.client.init();
 };
 
 
