@@ -5,9 +5,12 @@ youchat.keymap.enter = 13;
 
 youchat.dom = {};
 
+youchat.user_info = {};
+youchat.user_info.id = "Anonymous";
+
 youchat.client = {};
 youchat.client.ws = null;
-youchat.client.url = "ws://127.0.0.1:8025/websockets/game";
+youchat.client.url = "ws://127.0.0.1:8025/api/youchat";
 
 youchat.client.init = function () {
     youchat.client.ws = new WebSocket(youchat.client.url);

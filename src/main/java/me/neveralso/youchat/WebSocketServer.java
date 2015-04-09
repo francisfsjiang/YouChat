@@ -12,7 +12,7 @@ public class WebSocketServer {
     }
 
     public static void runServer() {
-        Server server = new Server("localhost", 8025, "/websockets", WordgameServerEndpoint.class);
+        Server server = new Server("localhost", 8025, "/api", YouChatServerEndpoint.class);
 
         try {
             server.start();
