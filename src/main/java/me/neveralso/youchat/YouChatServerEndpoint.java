@@ -1,5 +1,7 @@
 package me.neveralso.youchat;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 import javax.websocket.*;
@@ -21,40 +23,68 @@ public class YouChatServerEndpoint {
     private MongoClient mongoClient = new MongoClient("localhost", 27017);
     private MongoDatabase mongoDatabase = mongoClient.getDatabase("youchat");
 
+    private Session session;
+    private String id;
+
+    private static HashMap<String, YouChatServerEndpoint> collection =
+            new HashMap<>();
+
+
+    private String user_id;
+    private String user_room;
 
     @OnOpen
-    public void onOpen(Session session) {
+    public void onOpen(Session _session) {
+        session = _session;
+        id = _session.getId();
         logger.info(session.getId() + " Connected ... ");
-
-        SessionContainer.addSession(session);
+        collection.put(id, this);
     }
 
     @OnMessage
-    public String onMessage(String msg, Session session)   {
+    public String onMessage(String msg, Session _session)   {
         logger.info(session.getId() + " Received: " + msg);
         JSONTokener json_tokener = new JSONTokener(msg);
         JSONObject json_obj = (JSONObject) json_tokener.nextValue();
-        logger.info("type: " + json_obj.getString("type"));
-        logger.info("msg: " + json_obj.getString("msg"));
-        Document doc = new Document("type", json_obj.getString("type"))
-                .append("msg", json_obj.getString("msg"));
+        logger.info("msg: " + json_obj.toString());
+
+        Document doc = new Document("msg", json_obj.toString());
         MongoCollection<Document> collection = mongoDatabase.getCollection("log");
         collection.insertOne(doc);
+        //session.getContainer();
         return msg;
     }
 
     @OnClose
-    public void onClose(Session session, CloseReason closeReason) {
+    public void onClose(Session _session, CloseReason closeReason) {
         logger.info(String.format("Session %s closed because of %s", session.getId(), closeReason));
-        SessionContainer.removeSession(session.getId());
+        collection.remove(id);
         mongoClient.close();
     }
 
     @OnError
-    public void onError(Session session, Throwable thr) {
+    public void onError(Session _session, Throwable thr) {
         logger.info(String.format("Session %s error because of %s", session.getId(), thr));
         onClose(session, new CloseReason(CloseCodes.NORMAL_CLOSURE, " error occurred"));
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void send(String string) {
+        try {
+            session.getBasicRemote().sendText(string);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void sendAll(String string) {
+        for (HashMap.Entry<String, YouChatServerEndpoint> entry:
+                collection.entrySet()) {
+            entry.getValue().send(string);
+        }
+    }
 
 }

@@ -28,6 +28,9 @@ youchat.client.callback.onopen = function () {
 };
 
 youchat.client.callback.onmessage = function (e) {
+    var json = JSON.parse(e.data);
+    console.log(json.msg);
+    youchat.add_chat_content(json.msg);
     console.log("ws received: " + e.data);
 };
 
@@ -51,7 +54,6 @@ youchat.keyup = function (e) {
             });
             console.log("send:" + json);
             youchat.client.ws.send(json);
-            youchat.add_chat_content(youchat.dom.input_text.val());
             youchat.dom.input_text.val("");
 
             break;
@@ -62,8 +64,8 @@ youchat.update_chat_info = function() {
     youchat.dom.chat_info.html(youchat.user.id + "@" + youchat.user.room);
 };
 
-youchat.add_chat_content = function() {
-    youchat.dom.chat_container.append($("<div>" + youchat.dom.input_text.val() + "</div>"));
+youchat.add_chat_content = function(str) {
+    youchat.dom.chat_container.append($("<div>" + str + "</div>"));
 };
 
 youchat.init = function() {
@@ -80,7 +82,6 @@ youchat.init = function() {
     youchat.update_chat_info();
 
     youchat.dom.chat_container = $("#chat-container:first-child");
-
 
     youchat.client.init();
 };
