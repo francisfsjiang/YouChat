@@ -1,6 +1,5 @@
 package me.neveralso.youchat;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.websocket.*;
@@ -26,6 +25,8 @@ public class YouChatServerEndpoint {
     @OnOpen
     public void onOpen(Session session) {
         logger.info(session.getId() + " Connected ... ");
+
+        SessionContainer.addSession(session);
     }
 
     @OnMessage
@@ -45,6 +46,7 @@ public class YouChatServerEndpoint {
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
         logger.info(String.format("Session %s closed because of %s", session.getId(), closeReason));
+        SessionContainer.removeSession(session.getId());
         mongoClient.close();
     }
 

@@ -5,8 +5,9 @@ youchat.keymap.enter = 13;
 
 youchat.dom = {};
 
-youchat.user_info = {};
-youchat.user_info.id = "Anonymous";
+youchat.user = {};
+youchat.user.id = "Anonymous";
+youchat.user.room = "Global";
 
 youchat.client = {};
 youchat.client.ws = null;
@@ -44,13 +45,25 @@ youchat.keyup = function (e) {
         case youchat.keymap.enter :
             var json = JSON.stringify({
                 "type": "msg",
+                "id":youchat.user.id,
+                "room":youchat.user.room,
                 "msg": youchat.dom.input_text.val()
             });
             console.log("send:" + json);
             youchat.client.ws.send(json);
-            youchat.dom.input_text.value = "";
+            youchat.add_chat_content(youchat.dom.input_text.val());
+            youchat.dom.input_text.val("");
+
             break;
     }
+};
+
+youchat.update_chat_info = function() {
+    youchat.dom.chat_info.html(youchat.user.id + "@" + youchat.user.room);
+};
+
+youchat.add_chat_content = function() {
+    youchat.dom.chat_container.append($("<div>" + youchat.dom.input_text.val() + "</div>"));
 };
 
 youchat.init = function() {
@@ -62,10 +75,18 @@ youchat.init = function() {
     window.PerfectScrollbar.initialize(document.getElementById('chat-container'));
     youchat.dom.input_text = $("#input-text");
     youchat.dom.input_text.keyup(youchat.keyup);
+
+    youchat.dom.chat_info = $("#input-info");
+    youchat.update_chat_info();
+
+    youchat.dom.chat_container = $("#chat-container:first-child");
+
+
     youchat.client.init();
 };
 
 
 $(document).ready(function() {
+    console.log("init");
     youchat.init();
 });

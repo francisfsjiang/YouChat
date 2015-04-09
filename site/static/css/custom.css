@@ -1,6 +1,8 @@
 #chat-container {
+    height:0px;
+    padding-bottom:50%;
     position: relative;
-    height: 150px;
+    /*height: 150px;*/
     background-color: #000000;
     /*border:2px solid;*/
     border-radius: 10px;
