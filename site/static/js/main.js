@@ -42,22 +42,55 @@ youchat.client.callback.onerror = function (e) {
     console.log("ws error");
 };
 
+youchat.handler = {};
+youchat.handler["/msg"] = function() {
+    var json = youchat.get_json("msg", youchat.user.id, youchat.user.room, )
+    console.log("send:" + json);
+    youchat.client.ws.send(json);
+};
+
+youchat.handler["/login"] = function() {
+
+};
+
+youchat.handler["/reg"] = function() {
+
+};
+
+youchat.handler["/send"] = function() {
+
+};
+
+youchat.get_json = function(type, id, room, msg) {
+    return JSON.stringify({
+        "type": type,
+        "id": id,
+        "room": room,
+        "msg": msg
+    });
+};
+
 youchat.keyup = function (e) {
     var key_code = e.which;
     switch (key_code) {
         case youchat.keymap.enter :
-            var json = JSON.stringify({
-                "type": "msg",
-                "id":youchat.user.id,
-                "room":youchat.user.room,
-                "msg": youchat.dom.input_text.val()
-            });
-            console.log("send:" + json);
-            youchat.client.ws.send(json);
-            youchat.dom.input_text.val("");
-
+            youchat.send_cmd();
             break;
     }
+};
+
+youchat.send_cmd = function() {
+    var cmd = youchat.dom.input_text.val();
+    var type = "/msg";
+    for (var i in youchat.handler) {
+        if (cmd.search(i) == 0) {
+            type = i;
+        }
+    }
+    console.log("get " + type);
+    youchat.handler[type]();
+
+    youchat.dom.input_text.val("");
 };
 
 youchat.update_chat_info = function() {

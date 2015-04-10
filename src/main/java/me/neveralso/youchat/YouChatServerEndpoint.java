@@ -30,29 +30,32 @@ public class YouChatServerEndpoint {
             new HashMap<>();
 
 
-    private String user_id;
-    private String user_room;
+    private String userId;
+    private String userRoom;
 
     @OnOpen
     public void onOpen(Session _session) {
         session = _session;
         id = _session.getId();
-        logger.info(session.getId() + " Connected ... ");
+        logger.info(id + " Connected ... ");
         collection.put(id, this);
     }
 
     @OnMessage
-    public String onMessage(String msg, Session _session)   {
-        logger.info(session.getId() + " Received: " + msg);
+    public void onMessage(String msg, Session _session) {
+        logger.info(id + " Received: " + msg);
         JSONTokener json_tokener = new JSONTokener(msg);
         JSONObject json_obj = (JSONObject) json_tokener.nextValue();
         logger.info("msg: " + json_obj.toString());
 
-        Document doc = new Document("msg", json_obj.toString());
-        MongoCollection<Document> collection = mongoDatabase.getCollection("log");
-        collection.insertOne(doc);
-        //session.getContainer();
-        return msg;
+        CMD cmd = new CMD(
+                json_obj.getString("type"),
+                json_obj.getString("id"),
+                json_obj.getString("room"),
+                json_obj.getString("msg")
+        );
+
+        parseCmd(cmd);
     }
 
     @OnClose
@@ -68,11 +71,11 @@ public class YouChatServerEndpoint {
         onClose(session, new CloseReason(CloseCodes.NORMAL_CLOSURE, " error occurred"));
     }
 
-    public String getId() {
+    private String getId() {
         return id;
     }
 
-    public void send(String string) {
+    private void send(String string) {
         try {
             session.getBasicRemote().sendText(string);
         } catch (IOException e) {
@@ -80,11 +83,52 @@ public class YouChatServerEndpoint {
         }
     }
 
-    public static void sendAll(String string) {
-        for (HashMap.Entry<String, YouChatServerEndpoint> entry:
+    private static void sendAll(String string) {
+        for (HashMap.Entry<String, YouChatServerEndpoint> entry :
                 collection.entrySet()) {
             entry.getValue().send(string);
         }
     }
 
+    private void parseCmd(CMD cmd) {
+        boolean ret = false;
+        switch (cmd.type) {
+            case "msg":
+                ret = handleMsg(cmd);
+                break;
+            case "join":
+                ret = handleChangeRoom(cmd);
+                break;
+            case "register":
+                ret = handleRegister(cmd);
+                break;
+            case "login":
+                ret = handleLogin(cmd);
+                break;
+        }
+
+        JSONObject json = new JSONObject().
+                append("status", ret);
+
+        send(json.toString());
+    }
+
+    private boolean handleMsg(CMD cmd) {
+        return false;
+    }
+
+    private boolean handleChangeRoom(CMD cmd) {
+        return false;
+    }
+
+    private boolean handleRegister(CMD cmd) {
+        Document doc = new Document("user",cmd.id);
+        MongoCollection<Document> collection = mongoDatabase.getCollection("user");
+        collection.insertOne(doc);
+        return true;
+    }
+
+    private boolean handleLogin(CMD cmd) {
+        return false;
+    }
 }
