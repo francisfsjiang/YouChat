@@ -44,13 +44,25 @@ youchat.client.callback.onerror = function (e) {
 
 youchat.handler = {};
 youchat.handler["/msg"] = function() {
-    var json = youchat.get_json("msg", youchat.user.id, youchat.user.room, )
-    console.log("send:" + json);
+    var json = youchat.get_json(
+        "msg",
+        "",
+        "",
+        youchat.dom.input_text.val().split(" ").slice(1)
+    );
+    console.log("msg:" + json);
     youchat.client.ws.send(json);
 };
 
 youchat.handler["/login"] = function() {
-
+    var json = youchat.get_json(
+        "login",
+        youchat.dom.input_text,
+        "",
+        youchat.dom.input_text.val().split(" ").slice(1)
+    );
+    console.log("login:" + json);
+    youchat.client.ws.send(json);
 };
 
 youchat.handler["/reg"] = function() {
@@ -59,6 +71,11 @@ youchat.handler["/reg"] = function() {
 
 youchat.handler["/send"] = function() {
 
+};
+
+youchat.sha512 = function(str) {
+    var shaObj = new jsSHA(str, "TEXT");
+    return shaObj.getHash("SHA-512", "HEX");
 };
 
 youchat.get_json = function(type, id, room, msg) {
