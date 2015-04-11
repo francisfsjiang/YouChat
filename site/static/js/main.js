@@ -21,7 +21,6 @@ youchat.client.init = function () {
     youchat.client.ws.onerror = youchat.client.callback.onerror;
 };
 
-
 youchat.client.callback = {};
 youchat.client.callback.onopen = function () {
     console.log("ws open");
@@ -135,7 +134,6 @@ youchat.init = function() {
 
     youchat.client.init();
 };
-
 
 $(document).ready(function() {
     console.log("init");
