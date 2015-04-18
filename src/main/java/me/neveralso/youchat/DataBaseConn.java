@@ -1,7 +1,11 @@
 package me.neveralso.youchat;
 
+import java.util.logging.Logger;
+
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import static com.mongodb.client.model.Filters.*;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -11,27 +15,58 @@ import org.bson.Document;
 public class DataBaseConn {
     private MongoClient mongoClient;
     private MongoDatabase mongoDatabase;
+    MongoCollection<Document> userCollection;
+    MongoCollection<Document> logCollection;
+    MongoCollection<Document> msgCollection;
 
-    public DataBaseConn(){
-        mongoClient = new MongoClient("localhost", 27017);
-        mongoDatabase = mongoClient.getDatabase("youchat");
+    private Logger logger;
+
+    public DataBaseConn(Logger _logger){
+        logger = _logger;
+        init();
     }
 
-//    JSONTokener json_tokener = new JSONTokener(msg);
-//    JSONObject json_obj = (JSONObject) json_tokener.nextValue();
-//    logger.info("msg: " + json_obj.toString());
-//
-//    CMD cmd = new CMD(
-//            json_obj.getString("type"),
-//            json_obj.getString("id"),
-//            json_obj.getString("room"),
-//            json_obj.getString("msg")
-//    );
+    private void init() {
+        mongoClient = new MongoClient("localhost", 27017);
+        mongoDatabase = mongoClient.getDatabase("youchat");
 
-    public void Register() {
-        Document doc = new Document("user",cmd.id);
-        MongoCollection<Document> collection = mongoDatabase.getCollection("user");
-        collection.insertOne(doc);
+        userCollection = mongoDatabase.getCollection("user");
+        logCollection  = mongoDatabase.getCollection("log");
+        msgCollection  = mongoDatabase.getCollection("msg");
+    }
+
+    public boolean Register(String user_id, String passwd, String email) {
+        Document doc = new Document("user_id", user_id)
+                .append("passwd", passwd)
+                .append("email", email);
+        try {
+            userCollection.insertOne(doc);
+        }
+        catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean Login(String user_id, String passwd) {
+        String r_passwd;
+        try {
+            Document doc = userCollection.find(eq("user_id", user_id)).limit(1).first();
+            r_passwd = doc.getString("passwd");
+        }
+        catch (Exception e) {
+            return false;
+        }
+        logger.info("varfiy :" + user_id);
+        logger.info("input passwd:" + passwd);
+        logger.info("right passwd:" + r_passwd);
+        return passwd.equals(r_passwd);
+
+    }
+
+    public void Log(String log) {
+        Document doc = new Document("content",log);
+        logCollection.insertOne(doc);
     }
 
     public void Close() {

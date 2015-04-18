@@ -16,7 +16,7 @@ public class YouChatServerEndpoint {
 
     private Logger logger = Logger.getLogger(this.getClass().getName());
 
-    private DataBaseConn dbc = new DataBaseConn();
+    private DataBaseConn dbc = new DataBaseConn(logger);
 
     private Session session;
     private String id;
@@ -39,8 +39,7 @@ public class YouChatServerEndpoint {
     public void onMessage(String msg, Session _session) {
         logger.info(id + " Received: " + msg);
 
-
-        parseCmd(cmd);
+        parseCmd(msg);
     }
 
     @OnClose
@@ -75,43 +74,86 @@ public class YouChatServerEndpoint {
         }
     }
 
-    private void parseCmd(CMD cmd) {
+    private void parseCmd(String content) {
+        JSONTokener json_tokener = new JSONTokener(content);
+        JSONObject json_obj = (JSONObject) json_tokener.nextValue();
+        logger.info("msg: " + json_obj.toString());
+
+        String type = json_obj.getString("type");
+
         boolean ret = false;
-        switch (cmd.type) {
+        switch (type) {
             case "msg":
-                ret = handleMsg(cmd);
+                handleMsg(content);
                 break;
             case "join":
-                ret = handleChangeRoom(cmd);
+                handleChangeRoom(content);
                 break;
-            case "register":
-                ret = handleRegister(cmd);
+            case "reg":
+                handleRegister(content);
                 break;
             case "login":
-                ret = handleLogin(cmd);
+                handleLogin(content);
                 break;
         }
+    }
 
-        JSONObject json = new JSONObject().
-                append("status", ret);
+    private void handleMsg(String content) {
 
+    }
+
+    private void handleChangeRoom(String content) {
+
+    }
+
+    private void handleRegister(String content) {
+        JSONTokener json_tokener = new JSONTokener(content);
+        JSONObject json_obj = (JSONObject) json_tokener.nextValue();
+        String user_id = json_obj.getString("user_id");
+        String passwd = json_obj.getString("passwd");
+        String email = json_obj.getString("email");
+
+        Boolean ret = dbc.Register(user_id, passwd, email);
+        JSONObject result = new JSONObject()
+                .append("type", "reg")
+                .append("status", ret.toString());
+
+        if (ret) {
+            result.append("msg", "reg succeed, please login");
+        }
+        else {
+            result.append("msg", "reg failed");
+        }
+
+        send(result.toString());
+    }
+
+    private void handleLogin(String content) {
+        JSONTokener json_tokener = new JSONTokener(content);
+        JSONObject json_obj = (JSONObject) json_tokener.nextValue();
+        String user_id = json_obj.getString("user_id");
+        String passwd = json_obj.getString("passwd");
+
+        Boolean ret = dbc.Login(user_id, passwd);
+        JSONObject result = new JSONObject()
+                .append("type", "msg")
+                .append("status", ret.toString());
+        if (ret) {
+            result.append("msg", "login succeed, welcome back, " + user_id);
+            userId = user_id;
+            change_notify();
+        }
+        else {
+            result.append("msg", "login failed");
+        }
+        send(result.toString());
+    }
+
+    private void change_notify() {
+        JSONObject json = new JSONObject()
+                .append("type", "notify")
+                .append("user_id", userRoom)
+                .append("user_room", userRoom);
         send(json.toString());
-    }
-
-    private boolean handleMsg(CMD cmd) {
-        return false;
-    }
-
-    private boolean handleChangeRoom(CMD cmd) {
-        return false;
-    }
-
-    private boolean handleRegister(CMD cmd) {
-
-        return true;
-    }
-
-    private boolean handleLogin(CMD cmd) {
-        return false;
     }
 }
